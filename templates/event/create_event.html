@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create Event — Eventry</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+/* =========================================================
+   EVENTRY — design tokens
+   Palette:
+     --ink      #14161C   deep charcoal-navy (chrome / nav / footer)
+     --paper    #F7F4EE   warm off-white (page background)
+     --coral    #E8553F   signal accent (CTAs, live/upcoming marker)
+     --amber    #F2A93B   secondary accent (highlights, stub ticket)
+     --ink-60   rgba(20,22,28,.6)
+     --line     #E4DFD3   hairline border on paper
+   Type:
+     Display:  'Fraunces' (serif, event titles, program-guide feel)
+     Body/UI:  'Inter' (sans)
+     Mono/util:'IBM Plex Mono' (dates, codes, meta)
+   Signature:
+     Ticket-stub date block on every event card — a perforated
+     stub like a real event ticket, with the day torn off from
+     the rest of the card.
+   ========================================================= */
+
+:root{
+  --ink: #14161C;
+  --ink-soft: #2A2D37;
+  --paper: #F7F4EE;
+  --paper-dim: #EFEAE0;
+  --coral: #E8553F;
+  --coral-dark: #C73F2C;
+  --amber: #F2A93B;
+  --line: #E4DFD3;
+  --line-dark: #383B46;
+  --ink-60: rgba(20,22,28,.62);
+  --paper-60: rgba(247,244,238,.7);
+  --radius: 4px;
+  --shadow-card: 0 1px 0 rgba(20,22,28,.04), 0 8px 24px -12px rgba(20,22,28,.18);
+  --shadow-pop: 0 12px 32px -8px rgba(20,22,28,.35);
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+html, body{
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.font-display{ font-family: 'Fraunces', serif; }
+.font-mono{ font-family: 'IBM Plex Mono', monospace; letter-spacing: .02em; }
+
+h1, h2, h3, .display-font{
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+a{ color: var(--coral-dark); text-decoration: none; }
+a:hover{ color: var(--coral); }
+
+/* ---------- Utility brand bits ---------- */
+.text-coral{ color: var(--coral); }
+.bg-ink{ background: var(--ink) !important; }
+.bg-paper-dim{ background: var(--paper-dim); }
+.border-hairline{ border-color: var(--line) !important; }
+.tracking-wide{ letter-spacing: .08em; }
+.eyebrow{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--coral);
+}
+
+/* ---------- Navbar ---------- */
+.navbar-eventry{
+  background: var(--ink);
+  border-bottom: 1px solid var(--line-dark);
+}
+.navbar-eventry .navbar-brand{
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--paper);
+  letter-spacing: -0.01em;
+}
+.navbar-eventry .navbar-brand .dot{ color: var(--coral); }
+.navbar-eventry .nav-link{
+  color: var(--paper-60);
+  font-size: .92rem;
+  font-weight: 500;
+  padding: .5rem .9rem !important;
+  border-radius: var(--radius);
+  transition: color .15s ease, background .15s ease;
+}
+.navbar-eventry .nav-link:hover{ color: var(--paper); background: rgba(247,244,238,.06); }
+.navbar-eventry .nav-link.active{ color: var(--paper); background: rgba(232,85,63,.18); }
+
+/* ---------- Buttons ---------- */
+.btn-coral{
+  background: var(--coral);
+  border: 1px solid var(--coral);
+  color: var(--paper);
+  font-weight: 600;
+  border-radius: var(--radius);
+  padding: .55rem 1.3rem;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.btn-coral:hover{
+  background: var(--coral-dark);
+  border-color: var(--coral-dark);
+  color: var(--paper);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card);
+}
+.btn-outline-ink{
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  background: transparent;
+  border-radius: var(--radius);
+  font-weight: 500;
+}
+.btn-outline-ink:hover{ background: var(--ink); color: var(--paper); }
+.btn-ghost-paper{
+  border: 1px solid rgba(247,244,238,.3);
+  color: var(--paper);
+  background: transparent;
+  border-radius: var(--radius);
+}
+.btn-ghost-paper:hover{ background: rgba(247,244,238,.1); color: var(--paper); border-color: rgba(247,244,238,.5); }
+
+/* ---------- Hero ---------- */
+.hero-band{
+  background: var(--ink);
+  color: var(--paper);
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line-dark);
+}
+.hero-band::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 85% 20%, rgba(232,85,63,.28), transparent 45%),
+    radial-gradient(circle at 15% 90%, rgba(242,169,59,.16), transparent 40%);
+  pointer-events: none;
+}
+.hero-band .lede{ color: var(--paper-60); max-width: 46ch; }
+.hero-band h1, .hero-band h2, .hero-band h3{ color: var(--paper); }
+.hero-band .eyebrow{ color: var(--amber); }
+
+/* ---------- Ticket-stub card (signature element) ---------- */
+.ticket-card{
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  box-shadow: var(--shadow-card);
+  transition: transform .15s ease, box-shadow .15s ease;
+  height: 100%;
+}
+.ticket-card:hover{ transform: translateY(-3px); box-shadow: var(--shadow-pop); }
+
+.ticket-stub{
+  flex: 0 0 84px;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: .75rem .25rem;
+}
+/* perforation effect between stub and body */
+.ticket-stub::after{
+  content: "";
+  position: absolute;
+  right: -1px;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-right: 2px dashed rgba(247,244,238,.25);
+}
+.ticket-stub .stub-month{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+.ticket-stub .stub-day{
+  font-family: 'Fraunces', serif;
+  font-size: 2.1rem;
+  font-weight: 700;
+  line-height: 1;
+  margin: .15rem 0;
+}
+.ticket-stub .stub-dow{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .65rem;
+  color: var(--paper-60);
+  text-transform: uppercase;
+}
+.ticket-card.is-past .ticket-stub{ background: #565A66; }
+.ticket-card.is-past .ticket-stub .stub-month{ color: #C9C2B2; }
+.ticket-card.is-past{ opacity: .82; }
+
+.ticket-body{
+  flex: 1 1 auto;
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.ticket-thumb{
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-bottom: .75rem;
+  background: var(--paper-dim);
+}
+.ticket-title{
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 1.12rem;
+  margin-bottom: .25rem;
+  color: var(--ink);
+}
+.ticket-meta{
+  font-size: .82rem;
+  color: var(--ink-60);
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  flex-wrap: wrap;
+}
+.ticket-meta .sep{ opacity: .4; }
+.status-pill{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .68rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: .2rem .55rem;
+  border-radius: 100px;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+}
+.status-pill.live{ background: rgba(232,85,63,.12); color: var(--coral-dark); }
+.status-pill.live::before{ content:""; width:6px; height:6px; border-radius:50%; background: var(--coral); }
+.status-pill.past{ background: rgba(86,90,102,.12); color: #565A66; }
+.status-pill.past::before{ content:""; width:6px; height:6px; border-radius:50%; background: #9a9ea8; }
+
+/* ---------- Section framing ---------- */
+.section-label{
+  display: flex;
+  align-items: baseline;
+  gap: .75rem;
+  margin-bottom: 1.5rem;
+}
+.section-label .rule{
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+/* ---------- Tab toggle (Upcoming / Past) ---------- */
+.view-toggle{
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 3px;
+}
+.view-toggle .btn{
+  border: none;
+  background: transparent;
+  color: var(--ink-60);
+  font-weight: 600;
+  font-size: .85rem;
+  padding: .4rem 1rem;
+  border-radius: 2px;
+}
+.view-toggle .btn.active{
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* ---------- Forms ---------- */
+.form-label{
+  font-weight: 600;
+  font-size: .85rem;
+  color: var(--ink);
+  letter-spacing: .01em;
+}
+.form-control, .form-select{
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: .6rem .8rem;
+  font-size: .95rem;
+}
+.form-control:focus, .form-select:focus{
+  border-color: var(--coral);
+  box-shadow: 0 0 0 3px rgba(232,85,63,.15);
+}
+.upload-drop{
+  border: 1.5px dashed var(--line);
+  border-radius: var(--radius);
+  background: var(--paper-dim);
+  padding: 2rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease;
+}
+.upload-drop:hover, .upload-drop.dragover{
+  border-color: var(--coral);
+  background: rgba(232,85,63,.06);
+}
+.upload-drop img{ max-height: 160px; border-radius: var(--radius); }
+
+/* ---------- Detail page ---------- */
+.detail-cover{
+  height: 360px;
+  object-fit: cover;
+  width: 100%;
+  border-radius: var(--radius);
+  background: var(--paper-dim);
+}
+.detail-fact{
+  display: flex;
+  gap: .9rem;
+  padding: .85rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.detail-fact:last-child{ border-bottom: none; }
+.detail-fact .icon{
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--paper-dim);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  color: var(--coral-dark);
+}
+.detail-fact .label{
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--ink-60);
+  font-family: 'IBM Plex Mono', monospace;
+}
+.detail-fact .value{ font-weight: 600; }
+
+.sticky-register{
+  position: sticky;
+  top: 90px;
+}
+
+/* ---------- Admin dashboard ---------- */
+.stat-card{
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.4rem;
+  box-shadow: var(--shadow-card);
+}
+.stat-card .stat-num{
+  font-family: 'Fraunces', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.stat-card .stat-label{
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--ink-60);
+  font-family: 'IBM Plex Mono', monospace;
+}
+.table-eventry{ background: #fff; border-radius: var(--radius); overflow: hidden; }
+.table-eventry thead th{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--ink-60);
+  border-bottom: 1px solid var(--line);
+  font-weight: 500;
+  background: var(--paper-dim);
+}
+.table-eventry td, .table-eventry th{ vertical-align: middle; padding: .85rem 1rem; }
+.thumb-sm{ width: 46px; height: 46px; object-fit: cover; border-radius: var(--radius); background: var(--paper-dim); }
+
+.sidebar-admin{
+  background: var(--ink);
+  min-height: calc(100vh - 64px);
+}
+.sidebar-admin .nav-link{
+  color: var(--paper-60);
+  font-size: .9rem;
+  font-weight: 500;
+  padding: .65rem .9rem;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+.sidebar-admin .nav-link:hover{ background: rgba(247,244,238,.06); color: var(--paper); }
+.sidebar-admin .nav-link.active{ background: var(--coral); color: var(--paper); }
+
+/* ---------- Footer ---------- */
+.footer-eventry{
+  background: var(--ink);
+  color: var(--paper-60);
+  border-top: 1px solid var(--line-dark);
+}
+.footer-eventry a{ color: var(--paper-60); }
+.footer-eventry a:hover{ color: var(--paper); }
+
+/* ---------- Empty state ---------- */
+.empty-state{
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--ink-60);
+}
+.empty-state .glyph{
+  font-size: 2.4rem;
+  margin-bottom: .75rem;
+  color: var(--line);
+}
+
+/* ---------- Misc ---------- */
+.badge-soft{
+  background: var(--paper-dim);
+  color: var(--ink-60);
+  font-weight: 500;
+  font-size: .75rem;
+  padding: .35rem .65rem;
+  border-radius: 100px;
+}
+.divider-dash{ border-top: 2px dashed var(--line); }
+
+@media (max-width: 767px){
+  .ticket-card{ flex-direction: column; }
+  .ticket-stub{ flex-direction: row; width: 100%; padding: .5rem; gap: .5rem; }
+  .ticket-stub::after{ display:none; }
+  .sticky-register{ position: static; }
+}
+
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-eventry sticky-top py-3">
+  <div class="container">
+    <a class="navbar-brand" href="{% url 'home' %}">event<span class="dot">ry</span></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" style="filter:invert(1)">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+        <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Events</a></li>
+        <li class="nav-item"><a class="nav-link active" href="{% url 'create-event' %}">Create Event</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'admin_dashboard' %}">Admin</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<header class="hero-band py-4">
+  <div class="container py-2">
+    <p class="eyebrow mb-2">Organizer tools</p>
+    <h1 class="display-6 mb-1">List a new event</h1>
+    <p class="lede mb-0">Takes about two minutes. You can edit details any time from the admin dashboard.</p>
+  </div>
+</header>
+
+<main class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+
+      {% if messages %}
+        {% for message in messages %}
+          <div id="successAlert" class="alert mb-4" style="background:rgba(9, 218, 20, 0.1);border:1px solid var(--coral);color:var(--coral-dark);border-radius:var(--radius)" role="alert">
+            <strong>{{message}}</strong> <span id="successMsg"></span> <a href="index.html" class="fw-semibold">View it on the events page &rarr;</a>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div id="successAlert" class="alert d-none mb-4" style="background:rgba(9, 218, 20, 0.1);border:1px solid var(--coral);color:var(--coral-dark);border-radius:var(--radius)" role="alert">
+          <strong>Success!</strong> <span id="successMsg"></span> <a href="index.html" class="fw-semibold">View it on the events page &rarr;</a>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endif %}
+      <form id="eventForm" novalidate method="post" action="{% url 'create-event' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <!-- Image upload -->
+        <div class="mb-4">
+          <label class="form-label">Event poster / image</label>
+          <div class="upload-drop" id="uploadDrop">
+            <div id="uploadPlaceholder">
+              <div style="font-size:1.8rem;margin-bottom:.5rem">&#128247;</div>
+              <p class="mb-1 fw-semibold" style="color:var(--ink)">Click to upload, or drag and drop</p>
+              <p class="mb-0" style="font-size:.82rem;color:var(--ink-60)">PNG or JPG, up to 5MB. Recommended 1200&times;675px.</p>
+            </div>
+            <img id="uploadPreview" class="d-none" alt="Poster preview">
+          </div>
+          <input type="file" name="image" id="imageInput" accept="image/*" class="d-none">
+          <div class="form-text">For this demo build, images are stored as a preview URL — no file actually uploads anywhere.</div>
+        </div>
+
+        <div class="row g-3 mb-1">
+          <div class="col-12">
+            <label class="form-label" for="title">Event title <span class="text-coral">*</span></label>
+            <input type="text" name="title" class="form-control" id="title" placeholder="e.g. Bungoma Tech & Innovation Summit" required>
+          </div>
+        </div>
+
+        <div class="row g-3 mt-3">
+          <div class="col-md-6">
+            <label class="form-label" for="organizer">Organizer name <span class="text-coral">*</span></label>
+            <input type="text" name="organizer" class="form-control" id="organizer" placeholder="e.g. DevHub Kenya" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="category">Category <span class="text-coral">*</span></label>
+            <select class="form-select" name="category" id="category" required>
+              <option value="" selected disabled>Choose a category</option>
+              <option value="technology">Technology</option>
+              <option value="workshop">Workshop</option>
+              <option value="community">Community</option>
+              <option value="career">Career</option>
+              <option value="competition">Competition</option>
+              <option value="meetups">Meetup</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row g-3 mt-3">
+          <div class="col-md-4">
+            <label class="form-label" for="date">Date <span class="text-coral">*</span></label>
+            <input type="date" class="form-control" name="date" id="date" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="time">Start time <span class="text-coral">*</span></label>
+            <input type="time" class="form-control" id="time" name="start_time" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="capacity">Capacity <span class="text-coral">*</span></label>
+            <input type="number" class="form-control" id="capacity" name="capacity" min="1" placeholder="e.g. 150" required>
+          </div>
+        </div>
+
+        <div class="row g-3 mt-3">
+          <div class="col-md-8">
+            <label class="form-label" for="venue">Venue <span class="text-coral">*</span></label>
+            <input type="text" class="form-control" id="venue" name="venue" placeholder="e.g. Kibabii University, Main Auditorium" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="price">Ticket price (KSh)</label>
+            <input type="number" class="form-control" id="price" name="ticket_price" min="0" placeholder="0 for free">
+          </div>
+        </div>
+
+        <div class="row g-3 mt-3 mb-4">
+          <div class="col-12">
+            <label class="form-label" for="description">Description <span class="text-coral">*</span></label>
+            <textarea class="form-control" id="description" name="description" rows="5" placeholder="What's this event about? What should attendees expect?" required></textarea>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-coral px-4">Publish event</button>
+          <a href="{% url 'home' %}" class="btn btn-outline-ink px-4">Cancel</a>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</main>
+
+<footer class="footer-eventry py-4 mt-5">
+  <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <span class="font-mono" style="font-size:.8rem">&copy; 2026 Eventry — Event Management System</span>
+    <div class="d-flex gap-3">
+      <a href="index.html" style="font-size:.85rem">Events</a>
+      <a href="create-event.html" style="font-size:.85rem">Create</a>
+      <a href="admin-dashboard.html" style="font-size:.85rem">Admin</a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  let uploadedImageData = null;
+
+  const dropZone = document.getElementById("uploadDrop");
+  const fileInput = document.getElementById("imageInput");
+  const placeholder = document.getElementById("uploadPlaceholder");
+  const preview = document.getElementById("uploadPreview");
+
+  dropZone.addEventListener("click", () => fileInput.click());
+  dropZone.addEventListener("dragover", (e) => { e.preventDefault(); dropZone.classList.add("dragover"); });
+  dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+  dropZone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropZone.classList.remove("dragover");
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener("change", (e) => {
+    if (e.target.files.length) handleFile(e.target.files[0]);
+  });
+
+  function handleFile(file) {
+    if (!file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      uploadedImageData = e.target.result;
+      preview.src = uploadedImageData;
+      preview.classList.remove("d-none");
+      placeholder.classList.add("d-none");
+    };
+    reader.readAsDataURL(file);
+  }
+
+  document.getElementById("eventForm").addEventListener("submit", (e) => {
+    const form = e.target;
+    if (!form.checkValidity()) { 
+      e.preventDefault();
+      form.classList.add("was-validated"); 
+      return; 
+    }
+    // Allow form to submit normally to Django backend
+  });
+</script>
+</body>
+</html>

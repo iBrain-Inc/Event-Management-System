@@ -1,0 +1,643 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eventry — Discover events near you</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+
+
+:root{
+  --ink: #14161C;
+  --ink-soft: #2A2D37;
+  --paper: #F7F4EE;
+  --paper-dim: #EFEAE0;
+  --coral: #E8553F;
+  --coral-dark: #C73F2C;
+  --amber: #F2A93B;
+  --line: #E4DFD3;
+  --line-dark: #383B46;
+  --ink-60: rgba(20,22,28,.62);
+  --paper-60: rgba(247,244,238,.7);
+  --radius: 4px;
+  --shadow-card: 0 1px 0 rgba(20,22,28,.04), 0 8px 24px -12px rgba(20,22,28,.18);
+  --shadow-pop: 0 12px 32px -8px rgba(20,22,28,.35);
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+html, body{
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.font-display{ font-family: 'Fraunces', serif; }
+.font-mono{ font-family: 'IBM Plex Mono', monospace; letter-spacing: .02em; }
+
+h1, h2, h3, .display-font{
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+a{ color: var(--coral-dark); text-decoration: none; }
+a:hover{ color: var(--coral); }
+
+/* ---------- Utility brand bits ---------- */
+.text-coral{ color: var(--coral); }
+.bg-ink{ background: var(--ink) !important; }
+.bg-paper-dim{ background: var(--paper-dim); }
+.border-hairline{ border-color: var(--line) !important; }
+.tracking-wide{ letter-spacing: .08em; }
+.eyebrow{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--coral);
+}
+
+/* ---------- Navbar ---------- */
+.navbar-eventry{
+  background: var(--ink);
+  border-bottom: 1px solid var(--line-dark);
+}
+.navbar-eventry .navbar-brand{
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--paper);
+  letter-spacing: -0.01em;
+}
+.navbar-eventry .navbar-brand .dot{ color: var(--coral); }
+.navbar-eventry .nav-link{
+  color: var(--paper-60);
+  font-size: .92rem;
+  font-weight: 500;
+  padding: .5rem .9rem !important;
+  border-radius: var(--radius);
+  transition: color .15s ease, background .15s ease;
+}
+.navbar-eventry .nav-link:hover{ color: var(--paper); background: rgba(247,244,238,.06); }
+.navbar-eventry .nav-link.active{ color: var(--paper); background: rgba(232,85,63,.18); }
+
+/* ---------- Buttons ---------- */
+.btn-coral{
+  background: var(--coral);
+  border: 1px solid var(--coral);
+  color: var(--paper);
+  font-weight: 600;
+  border-radius: var(--radius);
+  padding: .55rem 1.3rem;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.btn-coral:hover{
+  background: var(--coral-dark);
+  border-color: var(--coral-dark);
+  color: var(--paper);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card);
+}
+.btn-outline-ink{
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  background: transparent;
+  border-radius: var(--radius);
+  font-weight: 500;
+}
+.btn-outline-ink:hover{ background: var(--ink); color: var(--paper); }
+.btn-ghost-paper{
+  border: 1px solid rgba(247,244,238,.3);
+  color: var(--paper);
+  background: transparent;
+  border-radius: var(--radius);
+}
+.btn-ghost-paper:hover{ background: rgba(247,244,238,.1); color: var(--paper); border-color: rgba(247,244,238,.5); }
+
+/* ---------- Hero ---------- */
+.hero-band{
+  background: var(--ink);
+  color: var(--paper);
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line-dark);
+}
+.hero-band::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 85% 20%, rgba(232,85,63,.28), transparent 45%),
+    radial-gradient(circle at 15% 90%, rgba(242,169,59,.16), transparent 40%);
+  pointer-events: none;
+}
+.hero-band .lede{ color: var(--paper-60); max-width: 46ch; }
+.hero-band h1, .hero-band h2, .hero-band h3{ color: var(--paper); }
+.hero-band .eyebrow{ color: var(--amber); }
+
+/* ---------- Ticket-stub card (signature element) ---------- */
+.ticket-card{
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  box-shadow: var(--shadow-card);
+  transition: transform .15s ease, box-shadow .15s ease;
+  height: 100%;
+}
+.ticket-card:hover{ transform: translateY(-3px); box-shadow: var(--shadow-pop); }
+
+.ticket-stub{
+  flex: 0 0 84px;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: .75rem .25rem;
+}
+/* perforation effect between stub and body */
+.ticket-stub::after{
+  content: "";
+  position: absolute;
+  right: -1px;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-right: 2px dashed rgba(247,244,238,.25);
+}
+.ticket-stub .stub-month{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+.ticket-stub .stub-day{
+  font-family: 'Fraunces', serif;
+  font-size: 2.1rem;
+  font-weight: 700;
+  line-height: 1;
+  margin: .15rem 0;
+}
+.ticket-stub .stub-dow{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .65rem;
+  color: var(--paper-60);
+  text-transform: uppercase;
+}
+.ticket-card.is-past .ticket-stub{ background: #565A66; }
+.ticket-card.is-past .ticket-stub .stub-month{ color: #C9C2B2; }
+.ticket-card.is-past{ opacity: .82; }
+
+.ticket-body{
+  flex: 1 1 auto;
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.ticket-thumb{
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-bottom: .75rem;
+  background: var(--paper-dim);
+}
+.ticket-title{
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 1.12rem;
+  margin-bottom: .25rem;
+  color: var(--ink);
+}
+.ticket-meta{
+  font-size: .82rem;
+  color: var(--ink-60);
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  flex-wrap: wrap;
+}
+.ticket-meta .sep{ opacity: .4; }
+.status-pill{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .68rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: .2rem .55rem;
+  border-radius: 100px;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+}
+.status-pill.live{ background: rgba(232,85,63,.12); color: var(--coral-dark); }
+.status-pill.live::before{ content:""; width:6px; height:6px; border-radius:50%; background: var(--coral); }
+.status-pill.past{ background: rgba(86,90,102,.12); color: #565A66; }
+.status-pill.past::before{ content:""; width:6px; height:6px; border-radius:50%; background: #9a9ea8; }
+
+/* ---------- Section framing ---------- */
+.section-label{
+  display: flex;
+  align-items: baseline;
+  gap: .75rem;
+  margin-bottom: 1.5rem;
+}
+.section-label .rule{
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+/* ---------- Tab toggle (Upcoming / Past) ---------- */
+.view-toggle{
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 3px;
+}
+.view-toggle .btn{
+  border: none;
+  background: transparent;
+  color: var(--ink-60);
+  font-weight: 600;
+  font-size: .85rem;
+  padding: .4rem 1rem;
+  border-radius: 2px;
+}
+.view-toggle .btn.active{
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* ---------- Forms ---------- */
+.form-label{
+  font-weight: 600;
+  font-size: .85rem;
+  color: var(--ink);
+  letter-spacing: .01em;
+}
+.form-control, .form-select{
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: .6rem .8rem;
+  font-size: .95rem;
+}
+.form-control:focus, .form-select:focus{
+  border-color: var(--coral);
+  box-shadow: 0 0 0 3px rgba(232,85,63,.15);
+}
+.upload-drop{
+  border: 1.5px dashed var(--line);
+  border-radius: var(--radius);
+  background: var(--paper-dim);
+  padding: 2rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease;
+}
+.upload-drop:hover, .upload-drop.dragover{
+  border-color: var(--coral);
+  background: rgba(232,85,63,.06);
+}
+.upload-drop img{ max-height: 160px; border-radius: var(--radius); }
+
+/* ---------- Detail page ---------- */
+.detail-cover{
+  height: 360px;
+  object-fit: cover;
+  width: 100%;
+  border-radius: var(--radius);
+  background: var(--paper-dim);
+}
+.detail-fact{
+  display: flex;
+  gap: .9rem;
+  padding: .85rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.detail-fact:last-child{ border-bottom: none; }
+.detail-fact .icon{
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--paper-dim);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  color: var(--coral-dark);
+}
+.detail-fact .label{
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--ink-60);
+  font-family: 'IBM Plex Mono', monospace;
+}
+.detail-fact .value{ font-weight: 600; }
+
+.sticky-register{
+  position: sticky;
+  top: 90px;
+}
+
+/* ---------- Admin dashboard ---------- */
+.stat-card{
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.4rem;
+  box-shadow: var(--shadow-card);
+}
+.stat-card .stat-num{
+  font-family: 'Fraunces', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.stat-card .stat-label{
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--ink-60);
+  font-family: 'IBM Plex Mono', monospace;
+}
+.table-eventry{ background: #fff; border-radius: var(--radius); overflow: hidden; }
+.table-eventry thead th{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--ink-60);
+  border-bottom: 1px solid var(--line);
+  font-weight: 500;
+  background: var(--paper-dim);
+}
+.table-eventry td, .table-eventry th{ vertical-align: middle; padding: .85rem 1rem; }
+.thumb-sm{ width: 46px; height: 46px; object-fit: cover; border-radius: var(--radius); background: var(--paper-dim); }
+
+.sidebar-admin{
+  background: var(--ink);
+  min-height: calc(100vh - 64px);
+}
+.sidebar-admin .nav-link{
+  color: var(--paper-60);
+  font-size: .9rem;
+  font-weight: 500;
+  padding: .65rem .9rem;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+.sidebar-admin .nav-link:hover{ background: rgba(247,244,238,.06); color: var(--paper); }
+.sidebar-admin .nav-link.active{ background: var(--coral); color: var(--paper); }
+
+/* ---------- Footer ---------- */
+.footer-eventry{
+  background: var(--ink);
+  color: var(--paper-60);
+  border-top: 1px solid var(--line-dark);
+}
+.footer-eventry a{ color: var(--paper-60); }
+.footer-eventry a:hover{ color: var(--paper); }
+
+/* ---------- Empty state ---------- */
+.empty-state{
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--ink-60);
+}
+.empty-state .glyph{
+  font-size: 2.4rem;
+  margin-bottom: .75rem;
+  color: var(--line);
+}
+
+/* ---------- Misc ---------- */
+.badge-soft{
+  background: var(--paper-dim);
+  color: var(--ink-60);
+  font-weight: 500;
+  font-size: .75rem;
+  padding: .35rem .65rem;
+  border-radius: 100px;
+}
+.divider-dash{ border-top: 2px dashed var(--line); }
+
+@media (max-width: 767px){
+  .ticket-card{ flex-direction: column; }
+  .ticket-stub{ flex-direction: row; width: 100%; padding: .5rem; gap: .5rem; }
+  .ticket-stub::after{ display:none; }
+  .sticky-register{ position: static; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-eventry sticky-top py-3">
+  <div class="container">
+    <a class="navbar-brand" href="{% url 'home' %}">event<span class="dot">ry</span></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" style="filter:invert(1)">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+        <li class="nav-item"><a class="nav-link active" href="{% url 'home' %}">Events</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'admin_dashboard' %}">Admin</a></li>
+        <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+          <a class="btn btn-coral btn-sm w-100" href="{% url 'create-event' %}">+ New Event</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero-band py-5">
+  <div class="container py-3 position-relative">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <p class="eyebrow mb-3">Bungoma &amp; beyond</p>
+        <h1 class="display-5 mb-3">Find what's<br>worth showing up for.</h1>
+        <p class="lede mb-4">Tech summits, community drives, workshops and meetups — browse what's coming up, or list your own event in minutes.</p>
+        <div class="d-flex flex-wrap gap-2">
+          <a href="{% url 'create-event' %}" class="btn btn-coral">List an event</a>
+          <a href="#listings" class="btn btn-ghost-paper">Browse events</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- LISTINGS -->
+<main class="container py-5" id="listings">
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div class="section-label flex-grow-1 mb-0">
+      <h2 class="h4 mb-0" id="sectionTitle">Upcoming events</h2>
+      <span class="rule"></span>
+      <span class="font-mono text-uppercase" style="font-size:.75rem;color:var(--ink-60)" id="resultCount">0 events</span>
+    </div>
+  </div>
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div class="view-toggle" role="tablist" aria-label="Filter events by time">
+      <button class="btn active" id="btnUpcoming" type="button">Upcoming</button>
+      <button class="btn" id="btnPast" type="button">Past</button>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+      <select class="form-select form-select-sm" id="categoryFilter" style="width:auto">
+        <option value="">All categories</option>
+      </select>
+      <input type="search" class="form-control form-control-sm" id="searchInput" placeholder="Search events…" style="width:200px">
+    </div>
+  </div>
+
+  <div class="row g-4" id="eventGrid">
+    {% if events %}
+      {% for event in events %}
+        <div class="col-md-6 col-lg-4 event-card-wrapper" data-category="{{ event.category|title }}" data-past="{% if event.start_time|date:'U' < 'now'|date:'U' %}true{% else %}false{% endif %}" data-title="{{ event.title|lower }}" data-venue="{{ event.venue|lower }}" data-organizer="{{ event.organizer.get_full_name|lower }}">
+          <a href="{% url 'register_event' event.id %}" class="text-decoration-none d-block h-100">
+            <div class="ticket-card {% if event.start_time|date:'U' < 'now'|date:'U' %}is-past{% endif %}">
+              <div class="ticket-stub">
+                <span class="stub-month">{{ event.start_time|date:'M' }}</span>
+                <span class="stub-day">{{ event.start_time|date:'d' }}</span>
+                <span class="stub-dow">#{{ event.start_time|date:'D' }}</span>
+              </div>
+              <div class="ticket-body">
+                {% if event.image %}
+                  <img src="{{ event.image.url }}" alt="{{ event.title }}" class="ticket-thumb" style="width:100%; height:160px; object-fit:cover;">
+                {% endif %}
+                <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+                  <h3 class="ticket-title mb-0">{{ event.title }}</h3>
+                </div>
+                <div class="ticket-meta mb-2">
+                  <span>{{ event.venue }}</span>
+                  <span class="sep">&middot;</span>
+                  <span>{{ event.start_time|date:'H:i' }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
+                  <span class="status-pill">{{ event.status|title }}</span>
+                  <span class="font-mono fw-semibold" style="font-size:.85rem;color:var(--ink)">KSh {{ event.ticket_price }}</span>
+                </div>
+                <div class="mt-2"><span class="badge-soft">{{ event.capacity }} spots left</span></div>
+              </div>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="col-12">
+        <div class="empty-state w-100">
+          <div class="glyph">&#9737;</div>
+          <h3 class="h5 mb-2">No events yet</h3>
+          <p class="mb-3">Check back soon, or create the first one.</p>
+          <a href="{% url 'create-event' %}" class="btn btn-coral btn-sm">Create an event</a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</main>
+
+
+<!-- FOOTER -->
+<footer class="footer-eventry py-4 mt-5">
+  <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <span class="font-mono" style="font-size:.8rem">&copy; 2026 Eventry — Event Management System</span>
+    <div class="d-flex gap-3">
+      <a href="index.html" style="font-size:.85rem">Events</a>
+      <a href="create-event.html" style="font-size:.85rem">Create</a>
+      <a href="admin-dashboard.html" style="font-size:.85rem">Admin</a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  let currentView = "upcoming";
+
+  function populateCategories() {
+    const categories = new Set();
+    document.querySelectorAll('[data-category]').forEach(card => {
+      categories.add(card.dataset.category);
+    });
+    
+    const sel = document.getElementById("categoryFilter");
+    Array.from(categories).sort().forEach(cat => {
+      const opt = document.createElement("option");
+      opt.value = cat;
+      opt.textContent = cat;
+      sel.appendChild(opt);
+    });
+  }
+
+  function render() {
+    const category = document.getElementById("categoryFilter").value;
+    const search = document.getElementById("searchInput").value.trim().toLowerCase();
+    let visibleCount = 0;
+
+    document.querySelectorAll('.event-card-wrapper').forEach(card => {
+      const cardCategory = card.dataset.category;
+      const isPast = card.dataset.past === 'true';
+      const title = card.dataset.title;
+      const venue = card.dataset.venue;
+      const organizer = card.dataset.organizer;
+
+      // Filter by view (upcoming/past)
+      const matchesView = currentView === "upcoming" ? !isPast : isPast;
+
+      // Filter by category
+      const matchesCategory = !category || cardCategory === category;
+
+      // Filter by search
+      const matchesSearch = !search || title.includes(search) || venue.includes(search) || organizer.includes(search);
+
+      const isVisible = matchesView && matchesCategory && matchesSearch;
+      card.style.display = isVisible ? '' : 'none';
+      if (isVisible) visibleCount++;
+    });
+
+    document.getElementById("sectionTitle").textContent = currentView === "upcoming" ? "Upcoming events" : "Past events";
+    document.getElementById("resultCount").textContent = `${visibleCount} event${visibleCount !== 1 ? "s" : ""}`;
+  }
+
+  document.getElementById("btnUpcoming").addEventListener("click", () => {
+    currentView = "upcoming";
+    document.getElementById("btnUpcoming").classList.add("active");
+    document.getElementById("btnPast").classList.remove("active");
+    render();
+  });
+
+  document.getElementById("btnPast").addEventListener("click", () => {
+    currentView = "past";
+    document.getElementById("btnPast").classList.add("active");
+    document.getElementById("btnUpcoming").classList.remove("active");
+    render();
+  });
+
+  document.getElementById("categoryFilter").addEventListener("change", render);
+  document.getElementById("searchInput").addEventListener("input", render);
+
+  document.addEventListener("DOMContentLoaded", () => {
+    if (document.querySelectorAll('.event-card-wrapper').length > 0) {
+      populateCategories();
+      render();
+    }
+  });
+</script>
+</body>
+</html>
