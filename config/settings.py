@@ -24,6 +24,8 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'cloudinary',
+    'cloudinary_storage',
     'event.apps.EventConfig',
 
     'django.contrib.admin',
